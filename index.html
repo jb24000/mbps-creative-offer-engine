@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MBPS Creative Offer Engine</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel2: #1f2937;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --line: #334155;
+      --accent: #38bdf8;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #1e3a8a 0, var(--bg) 38%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      padding: 28px 18px 18px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+    }
+    h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 3.2rem); letter-spacing: -0.04em; }
+    .subtitle { color: var(--muted); max-width: 780px; line-height: 1.55; margin-top: 10px; }
+    .install-btn, button {
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      color: white;
+      padding: 12px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(37, 99, 235, .25);
+    }
+    .install-btn.hidden { display: none; }
+    main { max-width: 1180px; margin: 0 auto; padding: 0 18px 42px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .card {
+      background: rgba(17, 24, 39, .88);
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .26);
+      backdrop-filter: blur(10px);
+    }
+    .card h2 { margin: 0 0 14px; font-size: 1.25rem; }
+    .section-title { margin-top: 22px; color: #bae6fd; font-size: .95rem; text-transform: uppercase; letter-spacing: .08em; }
+    label { display: block; color: var(--muted); font-weight: 700; font-size: .84rem; margin-bottom: 6px; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #020617;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 12px;
+      outline: none;
+      font-size: .96rem;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .full { grid-column: 1 / -1; }
+    .output-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .metric { background: #020617; border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+    .metric span { display: block; color: var(--muted); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+    .metric strong { display: block; margin-top: 6px; font-size: 1.18rem; }
+    .score { display: inline-block; border-radius: 999px; padding: 7px 12px; font-weight: 900; }
+    .hot { background: rgba(34,197,94,.16); color: #86efac; }
+    .warm { background: rgba(245,158,11,.18); color: #fcd34d; }
+    .cool { background: rgba(56,189,248,.16); color: #7dd3fc; }
+    .dead { background: rgba(239,68,68,.16); color: #fca5a5; }
+    .email-box {
+      background: #020617;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      white-space: pre-wrap;
+      line-height: 1.55;
+      min-height: 360px;
+    }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .secondary { background: #334155; box-shadow: none; }
+    .danger { background: #991b1b; box-shadow: none; }
+    .note { color: var(--muted); font-size: .9rem; line-height: 1.45; }
+    @media (max-width: 860px) {
+      .grid, .hero { grid-template-columns: 1fr; }
+      .form-grid, .output-grid { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: white; color: black; }
+      header, .input-card, .actions, .install-btn { display: none !important; }
+      main { padding: 0; }
+      .grid { display: block; }
+      .card { box-shadow: none; border: 0; color: black; background: white; }
+      .email-box, .metric { border: 1px solid #ccc; color: black; background: white; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <div>
+        <h1>MBPS Creative Offer Engine</h1>
+        <p class="subtitle">Generate MB Property Solutions-style subject-to, seller finance, hybrid, and wholesale offers with seller-facing email language, agent commissions, closing costs, and deal guardrails built in.</p>
+      </div>
+      <button id="installBtn" class="install-btn hidden">Install App</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="card input-card">
+      <h2>Deal Inputs</h2>
+      <div class="form-grid">
+        <div>
+          <label>Exit Strategy</label>
+          <select id="exitStrategy">
+            <option value="subject_to">Subject-To</option>
+            <option value="seller_finance">Seller Finance</option>
+            <option value="hybrid">Hybrid: Subject-To + Seller Finance</option>
+            <option value="wholesale">Cash / Wholesale</option>
+          </select>
+        </div>
+        <div>
+          <label>Deal Status</label>
+          <select id="dealStatus">
+            <option>Initial Offer</option>
+            <option>Counter Offer</option>
+            <option>Best and Final</option>
+          </select>
+        </div>
+
+        <p class="section-title full">Seller & Property</p>
+        <div><label>Seller Name</label><input id="sellerName" placeholder="Seller name" /></div>
+        <div><label>Seller Email</label><input id="sellerEmail" placeholder="seller@email.com" /></div>
+        <div class="full"><label>Property Address</label><input id="address" placeholder="123 Main St, City, State" /></div>
+        <div><label>ARV</label><input id="arv" type="number" value="250000" /></div>
+        <div><label>Estimated Repairs</label><input id="repairs" type="number" value="45000" /></div>
+        <div><label>Market Rent</label><input id="rent" type="number" value="2200" /></div>
+        <div><label>Asking Price</label><input id="asking" type="number" value="190000" /></div>
+
+        <p class="section-title full">Existing Loan / Creative Terms</p>
+        <div><label>Existing Loan Balance</label><input id="loanBalance" type="number" value="150000" /></div>
+        <div><label>Current Monthly PITI</label><input id="piti" type="number" value="1350" /></div>
+        <div><label>Cash to Seller</label><input id="cashToSeller" type="number" value="10000" /></div>
+        <div><label>Arrears / Catch-up</label><input id="arrears" type="number" value="0" /></div>
+        <div><label>Seller Finance Interest %</label><input id="sfRate" type="number" value="3" step="0.01" /></div>
+        <div><label>Seller Finance Term (Months)</label><input id="sfTerm" type="number" value="60" /></div>
+        <div><label>Balloon Due (Months)</label><input id="balloon" type="number" value="60" /></div>
+        <div><label>Desired Assignment / Profit</label><input id="profit" type="number" value="17500" /></div>
+
+        <p class="section-title full">Agent, Closing & Costs</p>
+        <div>
+          <label>Buyer Pays Agent Commissions?</label>
+          <select id="buyerPaysCommission">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <div><label>Agent Commission %</label><input id="commissionPct" type="number" value="3" step="0.1" /></div>
+        <div><label>Seller Closing Costs Paid by Buyer</label><input id="sellerClosingCosts" type="number" value="2500" /></div>
+        <div><label>Inspection Period Days</label><input id="inspectionDays" type="number" value="10" /></div>
+        <div><label>Earnest Money Deposit</label><input id="emd" type="number" value="500" /></div>
+        <div><label>Closing Timeline</label><input id="closingTimeline" value="14–21 days" /></div>
+
+        <p class="section-title full">Notes</p>
+        <div class="full"><label>Seller / Deal Notes</label><textarea id="notes" placeholder="Motivation, repairs, timeline, agent notes..."></textarea></div>
+      </div>
+      <div class="actions">
+        <button onclick="calculate()">Generate Offer</button>
+        <button class="secondary" onclick="saveDeal()">Save Deal</button>
+        <button class="secondary" onclick="loadDeal()">Load Saved</button>
+        <button class="danger" onclick="clearDeal()">Clear</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Offer Summary</h2>
+      <div class="output-grid" id="metrics"></div>
+      <p class="section-title">Seller Email</p>
+      <div id="emailOutput" class="email-box"></div>
+      <div class="actions">
+        <button onclick="copyEmail()">Copy Email</button>
+        <button class="secondary" onclick="openMailClient()">Open Email</button>
+        <button class="secondary" onclick="window.print()">Print / PDF</button>
+      </div>
+      <p class="note">Note: “Open Email” uses your device’s mail app. For true automatic sending from a server, connect SendGrid, Mailgun, Gmail API, or a GoHighLevel webhook.</p>
+    </section>
+  </main>
+
+<script>
+const $ = id => document.getElementById(id);
+const money = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(n || 0));
+const num = id => Number($(id).value || 0);
+const val = id => $(id).value || '';
+
+function monthlyPayment(principal, annualRate, months) {
+  principal = Number(principal || 0); annualRate = Number(annualRate || 0); months = Number(months || 0);
+  if (!principal || !months) return 0;
+  const r = annualRate / 100 / 12;
+  if (!r) return principal / months;
+  return principal * r / (1 - Math.pow(1 + r, -months));
+}
+
+function getCore() {
+  const strategy = val('exitStrategy');
+  const arv = num('arv');
+  const asking = num('asking');
+  const repairs = num('repairs');
+  const loanBalance = num('loanBalance');
+  const piti = num('piti');
+  const cashToSeller = num('cashToSeller');
+  const arrears = num('arrears');
+  const rent = num('rent');
+  const profit = num('profit');
+  const sellerClosingCosts = num('sellerClosingCosts');
+  const buyerPaysCommission = val('buyerPaysCommission') === 'yes';
+  const commissionPct = num('commissionPct');
+  const commissionBase = strategy === 'subject_to' || strategy === 'hybrid' ? loanBalance + cashToSeller + arrears : asking;
+  const agentCommission = buyerPaysCommission ? commissionBase * commissionPct / 100 : 0;
+  const sfPrincipal = Math.max(0, asking - cashToSeller - (strategy === 'hybrid' ? loanBalance : 0));
+  const sfPayment = monthlyPayment(sfPrincipal, num('sfRate'), num('sfTerm'));
+  const creativePayment = strategy === 'seller_finance' ? sfPayment : strategy === 'hybrid' ? piti + sfPayment : strategy === 'subject_to' ? piti : 0;
+  const monthlyOperating = Math.max(0, rent * 0.22);
+  const cashFlow = rent - creativePayment - monthlyOperating;
+  const buyerAllIn = (strategy === 'subject_to' || strategy === 'hybrid')
+    ? loanBalance + cashToSeller + arrears + agentCommission + sellerClosingCosts + repairs
+    : asking + agentCommission + sellerClosingCosts + repairs;
+  const equitySpread = arv - buyerAllIn;
+  const maxWholesaleOffer = Math.max(0, arv * 0.70 - repairs - profit - agentCommission - sellerClosingCosts);
+  const onePercentRent = buyerAllIn ? rent / buyerAllIn : 0;
+  let score = 'DEAD', cls = 'dead';
+  if (equitySpread >= 30000 && (cashFlow >= 500 || strategy === 'wholesale')) { score = 'HOT'; cls = 'hot'; }
+  else if (equitySpread >= 17500 && cashFlow >= 250) { score = 'WARM'; cls = 'warm'; }
+  else if (equitySpread >= 10000 || cashFlow >= 0) { score = 'COOL'; cls = 'cool'; }
+  return { strategy, arv, asking, repairs, loanBalance, piti, cashToSeller, arrears, rent, profit, sellerClosingCosts, buyerPaysCommission, commissionPct, agentCommission, sfPrincipal, sfPayment, creativePayment, monthlyOperating, cashFlow, buyerAllIn, equitySpread, maxWholesaleOffer, onePercentRent, score, cls };
+}
+
+function strategyLabel(s) {
+  return ({ subject_to: 'Subject-To', seller_finance: 'Seller Finance', hybrid: 'Hybrid Subject-To + Seller Finance', wholesale: 'Cash / Wholesale' })[s] || s;
+}
+
+function generateEmail(c) {
+  const seller = val('sellerName') || '[Seller Name]';
+  const address = val('address') || '[Property Address]';
+  const closingTimeline = val('closingTimeline') || '[Closing Timeline]';
+  const inspection = num('inspectionDays');
+  const emd = num('emd');
+  const commissionLine = c.buyerPaysCommission
+    ? `Agent Commissions: Buyer to pay agreed agent commissions at closing, estimated at ${money(c.agentCommission)}`
+    : `Agent Commissions: Not included in this offer structure`;
+  const sharedClose = `Inspection Period: ${inspection} days\nEarnest Money: ${money(emd)}, due after the inspection period\nClosing Timeline: ${closingTimeline}\nSeller Closing Costs: Buyer to pay standard seller closing costs where applicable\n${commissionLine}`;
+
+  if (c.strategy === 'subject_to') {
+    return `Hi ${seller},\n\nThank you for speaking with me about ${address}.\n\nBased on the existing loan, monthly payment, property condition, and the numbers needed to make the deal work, our offer would be structured as a subject-to purchase.\n\nWe would purchase the property subject to the existing mortgage remaining in place. After closing, we would take over responsibility for making the monthly mortgage payments while the loan remains in place until it is paid off, refinanced, or the property is sold.\n\nOffer Terms:\n\nPurchase Price / Existing Debt Taken Over: ${money(c.loanBalance)}\nCash to Seller at Closing: ${money(c.cashToSeller)}\nArrears / Catch-up Paid by Buyer: ${money(c.arrears)}\nMonthly Payment Taken Over: ${money(c.piti)}\n${sharedClose}\n\nThis structure is designed to help you move forward without needing to make repairs or bring additional money to closing. We are also including the agreed agent commissions and standard seller closing costs in what we are paying, so the offer is focused on solving the net outcome.\n\nPlease review and let me know if this structure works for you.\n\nThank you,\nMelvin Bonner\nMB Property Solutions`;
+  }
+
+  if (c.strategy === 'seller_finance') {
+    return `Hi ${seller},\n\nThank you for speaking with me about ${address}.\n\nBased on the property condition, market value, estimated repairs, and the monthly payment needed for the deal to work, our offer would be structured with seller financing.\n\nUnder this structure, you would sell the property to us and carry back a note for part or all of the purchase price. We would make monthly payments according to the agreed terms.\n\nOffer Terms:\n\nPurchase Price: ${money(c.asking)}\nDown Payment / Cash to Seller: ${money(c.cashToSeller)}\nSeller-Financed Balance: ${money(c.sfPrincipal)}\nInterest Rate: ${num('sfRate')}%\nEstimated Monthly Payment: ${money(c.sfPayment)}\nTerm: ${num('sfTerm')} months\nBalloon Due: ${num('balloon')} months\n${sharedClose}\n\nThis structure gives you a predictable payment stream while allowing us to purchase the property in a way that supports the repairs, holding costs, and exit strategy. We are also including agreed agent commissions and standard seller closing costs in what we are paying.\n\nPlease review and let me know if this structure works for you.\n\nThank you,\nMelvin Bonner\nMB Property Solutions`;
+  }
+
+  if (c.strategy === 'hybrid') {
+    return `Hi ${seller},\n\nThank you for speaking with me about ${address}.\n\nBased on the existing mortgage, the cash needed at closing, and the total numbers needed to make the deal work, our offer would be structured as a hybrid subject-to and seller finance purchase.\n\nWe would take over the existing mortgage payments after closing and the remaining seller equity would be handled through a seller-financed note.\n\nOffer Terms:\n\nExisting Loan Taken Over: ${money(c.loanBalance)}\nCash to Seller at Closing: ${money(c.cashToSeller)}\nSeller-Financed Balance: ${money(c.sfPrincipal)}\nSeller Finance Interest Rate: ${num('sfRate')}%\nEstimated Seller Finance Payment: ${money(c.sfPayment)}\nExisting Monthly Payment Taken Over: ${money(c.piti)}\nEstimated Total Monthly Payment: ${money(c.creativePayment)}\nBalloon Due: ${num('balloon')} months\n${sharedClose}\n\nThis structure gives us a way to solve the existing mortgage while still creating a payment plan for your remaining equity. We are including agreed agent commissions and standard seller closing costs in what we are paying.\n\nPlease review and let me know if this structure works for you.\n\nThank you,\nMelvin Bonner\nMB Property Solutions`;
+  }
+
+  return `Hi ${seller},\n\nThank you for speaking with me about ${address}.\n\nBased on the current condition, estimated repairs, resale value, closing costs, agent commissions, and the margin needed for the deal to work, our cash offer would be ${money(c.maxWholesaleOffer)}.\n\nOffer Terms:\n\nCash Purchase Price: ${money(c.maxWholesaleOffer)}\nEstimated Repairs Considered: ${money(c.repairs)}\n${sharedClose}\n\nThis offer is based on the current condition of the property and the numbers needed for us to move forward as a cash buyer. We are including agreed agent commissions and standard seller closing costs in what we are paying.\n\nPlease review and let me know if this works for you.\n\nThank you,\nMelvin Bonner\nMB Property Solutions`;
+}
+
+function calculate() {
+  const c = getCore();
+  $('metrics').innerHTML = `
+    <div class="metric"><span>Deal Score</span><strong><span class="score ${c.cls}">${c.score}</span></strong></div>
+    <div class="metric"><span>Strategy</span><strong>${strategyLabel(c.strategy)}</strong></div>
+    <div class="metric"><span>Buyer All-In</span><strong>${money(c.buyerAllIn)}</strong></div>
+    <div class="metric"><span>Equity Spread</span><strong>${money(c.equitySpread)}</strong></div>
+    <div class="metric"><span>Agent Commission Paid</span><strong>${money(c.agentCommission)}</strong></div>
+    <div class="metric"><span>Est. Monthly Cash Flow</span><strong>${money(c.cashFlow)}</strong></div>
+    <div class="metric"><span>1% Rule Ratio</span><strong>${(c.onePercentRent * 100).toFixed(2)}%</strong></div>
+    <div class="metric"><span>Wholesale Max Offer</span><strong>${money(c.maxWholesaleOffer)}</strong></div>
+  `;
+  $('emailOutput').textContent = generateEmail(c);
+}
+
+function saveDeal() {
+  const data = {};
+  document.querySelectorAll('input, select, textarea').forEach(el => data[el.id] = el.value);
+  localStorage.setItem('mbpsCreativeOfferDeal', JSON.stringify(data));
+  alert('Deal saved locally in this browser.');
+}
+function loadDeal() {
+  const raw = localStorage.getItem('mbpsCreativeOfferDeal');
+  if (!raw) return alert('No saved deal found.');
+  const data = JSON.parse(raw);
+  Object.entries(data).forEach(([id, value]) => { if ($(id)) $(id).value = value; });
+  calculate();
+}
+function clearDeal() {
+  if (!confirm('Clear saved local deal?')) return;
+  localStorage.removeItem('mbpsCreativeOfferDeal');
+  location.reload();
+}
+function copyEmail() {
+  navigator.clipboard.writeText($('emailOutput').textContent);
+  alert('Email copied.');
+}
+function openMailClient() {
+  const subject = encodeURIComponent(`Offer for ${val('address') || 'Property'}`);
+  const body = encodeURIComponent($('emailOutput').textContent);
+  const to = encodeURIComponent(val('sellerEmail'));
+  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+}
+
+let deferredPrompt;
+const installBtn = $('installBtn');
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.classList.remove('hidden');
+});
+installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  installBtn.classList.add('hidden');
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+}
+
+document.querySelectorAll('input, select, textarea').forEach(el => el.addEventListener('input', calculate));
+calculate();
+</script>
+</body>
+</html>
