@@ -120,7 +120,7 @@
     <div class="hero">
       <div>
         <h1>MBPS Creative Offer Engine</h1>
-        <p class="subtitle">Generate MB Property Solutions-style subject-to, seller finance, hybrid, and wholesale offers with seller-facing email language, agent commissions, closing costs, and deal guardrails built in.</p>
+        <p class="subtitle">Generate MB Property Solutions-style subject-to, seller finance, hybrid, and wholesale offers with direct-seller and agent-facing email language, agent commissions, closing costs, stale-listing positioning, and deal guardrails built in.</p>
       </div>
       <button id="installBtn" class="install-btn hidden">Install App</button>
     </div>
@@ -148,14 +148,25 @@
           </select>
         </div>
 
-        <p class="section-title full">Seller & Property</p>
-        <div><label>Seller Name</label><input id="sellerName" placeholder="Seller name" /></div>
-        <div><label>Seller Email</label><input id="sellerEmail" placeholder="seller@email.com" /></div>
+        <p class="section-title full">Contact, Lead Source & Property</p>
+        <div>
+          <label>Lead Source / Email Tone</label>
+          <select id="leadSource">
+            <option value="agent_90_dom">Agent Listed / 90+ Days on Market</option>
+            <option value="agent_listed">Agent Listed</option>
+            <option value="direct_seller">Direct Seller</option>
+          </select>
+        </div>
+        <div><label>Days on Market</label><input id="daysOnMarket" type="number" value="90" /></div>
+        <div><label>Agent Name</label><input id="agentName" placeholder="Agent name" /></div>
+        <div><label>Agent Email</label><input id="sellerEmail" placeholder="agent@email.com" /></div>
+        <div><label>Seller Name</label><input id="sellerName" placeholder="Seller name, if known" /></div>
+        <div><label>Listing Price</label><input id="listingPrice" type="number" value="190000" /></div>
         <div class="full"><label>Property Address</label><input id="address" placeholder="123 Main St, City, State" /></div>
         <div><label>ARV</label><input id="arv" type="number" value="250000" /></div>
         <div><label>Estimated Repairs</label><input id="repairs" type="number" value="45000" /></div>
         <div><label>Market Rent</label><input id="rent" type="number" value="2200" /></div>
-        <div><label>Asking Price</label><input id="asking" type="number" value="190000" /></div>
+        <div><label>Offer / Contract Price</label><input id="asking" type="number" value="190000" /></div>
 
         <p class="section-title full">Existing Loan / Creative Terms</p>
         <div><label>Existing Loan Balance</label><input id="loanBalance" type="number" value="150000" /></div>
@@ -182,7 +193,7 @@
         <div><label>Closing Timeline</label><input id="closingTimeline" value="14–21 days" /></div>
 
         <p class="section-title full">Notes</p>
-        <div class="full"><label>Seller / Deal Notes</label><textarea id="notes" placeholder="Motivation, repairs, timeline, agent notes..."></textarea></div>
+        <div class="full"><label>Agent / Seller / Deal Notes</label><textarea id="notes" placeholder="MLS notes, agent comments, motivation, repairs, timeline, seller flexibility..."></textarea></div>
       </div>
       <div class="actions">
         <button onclick="calculate()">Generate Offer</button>
@@ -260,14 +271,35 @@ function strategyLabel(s) {
 
 function generateEmail(c) {
   const seller = val('sellerName') || '[Seller Name]';
+  const agent = val('agentName') || '[Agent Name]';
   const address = val('address') || '[Property Address]';
+  const leadSource = val('leadSource');
+  const isAgentTone = leadSource === 'agent_90_dom' || leadSource === 'agent_listed';
+  const dom = num('daysOnMarket') || 90;
   const closingTimeline = val('closingTimeline') || '[Closing Timeline]';
   const inspection = num('inspectionDays');
   const emd = num('emd');
+  const greeting = isAgentTone ? agent : seller;
   const commissionLine = c.buyerPaysCommission
     ? `Agent Commissions: Buyer to pay agreed agent commissions at closing, estimated at ${money(c.agentCommission)}`
     : `Agent Commissions: Not included in this offer structure`;
   const sharedClose = `Inspection Period: ${inspection} days\nEarnest Money: ${money(emd)}, due after the inspection period\nClosing Timeline: ${closingTimeline}\nSeller Closing Costs: Buyer to pay standard seller closing costs where applicable\n${commissionLine}`;
+
+  if (isAgentTone && c.strategy === 'subject_to') {
+    return `Hi ${greeting},\n\nThank you for sharing the information on ${address}.\n\nAfter reviewing the property, the current list price, the estimated repairs, the existing financing, and the fact that the listing has been on the market for approximately ${dom}+ days, a traditional cash offer at the current pricing would likely be difficult on my side.\n\nThat said, I may be able to make the numbers work with a creative structure that still protects the seller's net position and keeps the agent commissions included in the transaction.\n\nOne structure I would consider is purchasing the property subject-to the existing financing, while covering the agreed agent commissions and standard seller closing costs at closing.\n\nProposed Structure:\n\nExisting Financing / Debt Taken Over: ${money(c.loanBalance)}\nCash to Seller at Closing: ${money(c.cashToSeller)}\nArrears / Catch-up Paid by Buyer: ${money(c.arrears)}\nCurrent Monthly Payment Taken Over: ${money(c.piti)}\n${sharedClose}\n\nThis is not intended to be a low-ball cash offer. It is a different structure that may help solve the financing, repair, and holding-cost side of the deal while still giving the seller a path forward and keeping commissions protected.\n\nIf the seller is open to reviewing creative terms, I would be happy to put together a formal offer for everyone to review.\n\nThank you,\nMelvin Bonner\nMB Property Solutions`;
+  }
+
+  if (isAgentTone && c.strategy === 'seller_finance') {
+    return `Hi ${greeting},\n\nThank you for sharing the information on ${address}.\n\nAfter reviewing the property, time on market, estimated repairs, and the numbers needed for the deal to work, a traditional cash offer at the current pricing would likely be difficult.\n\nHowever, if the seller is open to terms, I may be able to structure the purchase with seller financing while still covering agreed agent commissions and standard seller closing costs.\n\nProposed Structure:\n\nPurchase Price: ${money(c.asking)}\nDown Payment / Cash to Seller: ${money(c.cashToSeller)}\nSeller-Financed Balance: ${money(c.sfPrincipal)}\nInterest Rate: ${num('sfRate')}%\nEstimated Monthly Payment: ${money(c.sfPayment)}\nTerm: ${num('sfTerm')} months\nBalloon Due: ${num('balloon')} months\n${sharedClose}\n\nThis structure may give the seller a cleaner path forward on a stale listing while creating predictable payment terms instead of continuing to carry the property on the market.\n\nIf the seller is open to reviewing creative terms, I would be happy to put together a formal offer for everyone to review.\n\nThank you,\nMelvin Bonner\nMB Property Solutions`;
+  }
+
+  if (isAgentTone && c.strategy === 'hybrid') {
+    return `Hi ${greeting},\n\nThank you for sharing the information on ${address}.\n\nAfter reviewing the current financing, estimated repairs, time on market, and the numbers needed for the deal to work, I may be able to make an offer using a hybrid structure.\n\nThe idea would be to purchase the property subject-to the existing financing and handle the remaining seller equity through a seller-financed note, while still covering the agreed agent commissions and standard seller closing costs.\n\nProposed Structure:\n\nExisting Loan Taken Over: ${money(c.loanBalance)}\nCash to Seller at Closing: ${money(c.cashToSeller)}\nSeller-Financed Balance: ${money(c.sfPrincipal)}\nSeller Finance Interest Rate: ${num('sfRate')}%\nEstimated Seller Finance Payment: ${money(c.sfPayment)}\nExisting Monthly Payment Taken Over: ${money(c.piti)}\nEstimated Total Monthly Payment: ${money(c.creativePayment)}\nBalloon Due: ${num('balloon')} months\n${sharedClose}\n\nThis structure may help bridge the gap between where the seller needs to be and what the property supports from an investor standpoint, especially after extended time on market.\n\nIf the seller is open to reviewing creative terms, I would be happy to put together a formal offer for everyone to review.\n\nThank you,\nMelvin Bonner\nMB Property Solutions`;
+  }
+
+  if (isAgentTone && c.strategy === 'wholesale') {
+    return `Hi ${greeting},\n\nThank you for sharing the information on ${address}.\n\nAfter reviewing the property, estimated repairs, resale value, days on market, closing costs, and commissions, my cash number would need to be around ${money(c.maxWholesaleOffer)}.\n\nProposed Cash Terms:\n\nCash Purchase Price: ${money(c.maxWholesaleOffer)}\nEstimated Repairs Considered: ${money(c.repairs)}\n${sharedClose}\n\nI understand this may be below the current list price. I am basing the number on the repairs, resale risk, holding costs, and margin needed for an investor purchase.\n\nIf the seller has flexibility after being on market for approximately ${dom}+ days, I would be happy to submit this formally.\n\nThank you,\nMelvin Bonner\nMB Property Solutions`;
+  }
 
   if (c.strategy === 'subject_to') {
     return `Hi ${seller},\n\nThank you for speaking with me about ${address}.\n\nBased on the existing loan, monthly payment, property condition, and the numbers needed to make the deal work, our offer would be structured as a subject-to purchase.\n\nWe would purchase the property subject to the existing mortgage remaining in place. After closing, we would take over responsibility for making the monthly mortgage payments while the loan remains in place until it is paid off, refinanced, or the property is sold.\n\nOffer Terms:\n\nPurchase Price / Existing Debt Taken Over: ${money(c.loanBalance)}\nCash to Seller at Closing: ${money(c.cashToSeller)}\nArrears / Catch-up Paid by Buyer: ${money(c.arrears)}\nMonthly Payment Taken Over: ${money(c.piti)}\n${sharedClose}\n\nThis structure is designed to help you move forward without needing to make repairs or bring additional money to closing. We are also including the agreed agent commissions and standard seller closing costs in what we are paying, so the offer is focused on solving the net outcome.\n\nPlease review and let me know if this structure works for you.\n\nThank you,\nMelvin Bonner\nMB Property Solutions`;
